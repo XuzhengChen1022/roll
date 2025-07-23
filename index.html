@@ -65,6 +65,130 @@ var _hmt = _hmt || [];
             $("#box").on('click','#help',function () {
                 $("#hint2").text("“快乐值”越高越想选该课。可设为1、学分或其他任何正数")
             });
+            //随机法计算部分
+            $("#box").on('click','#calp_random',function () {
+                
+                //初始化
+                $("#box #jieguo").each(function(i,e) {
+                    $(e).text("?")
+                })
+                
+                var X = new Array() //投点数
+                var totalPoints = 99 //总点数
+                var courseCount = l //课程数量
+                var num0 = new Array() //限选人数
+                var num1 = new Array() //已选人数
+                var hapy = new Array() //快乐值
+                
+                //正则表达式检验输入输出是否合理
+                var reg1 = /^\d+$/     //自然数
+                var reg2 = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/   //正数
+                var right = true
+                
+                //验证快乐值必须是正数
+                $("#innerBox .input3").each(function(i,e) {
+                    if (reg2.test(e.value)==false)
+                    {
+                       $("#hint2").text("快乐值必须是正数")
+                       right = false
+                    }
+                    else
+                    {
+                        hapy[i]=parseFloat(e.value)
+                    }
+                })
+                
+                //验证已选人数必须是正整数
+                $("#innerBox .input2").each(function(i,e) {
+                    if (reg1.test(e.value)==false)
+                    {
+                       $("#hint2").text("已选人数必须是正整数")
+                       right = false
+                    }
+                    else
+                    {
+                        num1[i]=parseFloat(e.value)
+                    }
+                })
+                
+                //验证限选人数必须是正整数
+                $("#innerBox .input1").each(function(i,e) {
+                    if (reg1.test(e.value)==false)
+                    {
+                       $("#hint2").text("限选人数必须是正整数")
+                       right = false
+                    }
+                    else
+                    {
+                        num0[i]=parseFloat(e.value)
+                        if (num0[i]>=num1[i])
+                        {
+                            right=false
+                            $("#hint2").text("每门课的已选人数必须大于限选人数")
+                        }
+                    }
+                })
+                
+                //将99个点看成99个小球，随机分配到l门课程中
+                if (right==true && courseCount > 0) {
+                    //初始化每门课程的球数为0
+                    for (var i = 0; i < courseCount; i++) {
+                        X[i] = 0
+                    }
+                    
+                    //随机分配99个小球到l门课程中
+                    for (var ball = 0; ball < totalPoints; ball++) {
+                        //随机选择一门课程
+                        var randomCourse = Math.floor(Math.random() * courseCount)
+                        //给该课程增加一个球
+                        X[randomCourse]++
+                    }
+                    
+                    //创建课程索引和快乐值的配对数组，用于排序
+                    var coursePairs = []
+                    for (var i = 0; i < courseCount; i++) {
+                        coursePairs.push({
+                            index: i,
+                            happiness: hapy[i]
+                        })
+                    }
+                    
+                    //按照快乐值从小到大排序
+                    coursePairs.sort(function(a, b) {
+                        return a.happiness - b.happiness
+                    })
+                    
+                    //将随机分配的点数按快乐值排序重新分配
+                    var sortedPoints = []
+                    for (var i = 0; i < courseCount; i++) {
+                        sortedPoints.push(X[i])
+                    }
+                    sortedPoints.sort(function(a, b) {
+                        return a - b
+                    })
+                    
+                    //将排序后的点数重新分配给原课程（快乐值低的课程获得较少的点数）
+                    for (var i = 0; i < courseCount; i++) {
+                        X[coursePairs[i].index] = sortedPoints[i]
+                    }
+                    
+                    //显示结果
+                    $('#box p').filter("#jieguo").each(function (i,e) {
+                        $(e).text(X[i])
+                    })
+                    
+                    //生成结果文本
+                    var towrite = "随机分配完成！\n"
+                    for (var i = 0; i < courseCount; i++) {
+                        towrite += "课程" + (i+1) + "投点数：" + X[i] + "\n"
+                    }
+                    towrite += "总投点数：" + totalPoints
+                    
+                    $("#hint").text(towrite)
+                    $("#detail").show()
+                    $("#hint2").text("随机分配完成")
+                }
+            });
             //主体计算部分
             $("#box").on('click','#calp',function () {
                 
@@ -195,6 +319,24 @@ var _hmt = _hmt || [];
 <hr/>
 <!--输入与输出-->
     <div id="box" class="box">
+        <!-- 加课减课按钮移到表格上方 -->
+        <div style="text-align: center; margin-bottom: 10px;">
+        <a id='addp'>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          加课
+        </a>
+        <a id='delp'>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          减课
+        </a>
+        </div>
+        
         <table id="innerBox" class="innerBox" border="1">
         <tr>
             <th>序号</th>
@@ -212,29 +354,31 @@ var _hmt = _hmt || [];
         </tr>
 
         </table>
-    <div style="text-align: center;">
-    <a id='addp'>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      加课
-    </a>
-    <a id='delp'>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      减课
-    </a>
-    <a id='calp'>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        计算
-    </a>
-    </div>
+        
+        <!-- 三种计算方法按钮 -->
+        <div style="text-align: center; margin-top: 10px;">
+        <a id='calp'>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            傻瓜法
+        </a>
+        <a id='calp_prime'>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            质数法
+        </a>
+        <a id='calp_random'>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            随机法
+        </a>
+        </div>
     </div>
 <div id="detail" style="white-space: pre-line;display: none;">
 <hr/>

@@ -43,6 +43,17 @@ body {
               0 0 100px #03e9f4;
 }
 
+/* 加课减课按钮的绿色光芒效果 */
+#addp:hover, #delp:hover {
+  background: #00ff00;
+  color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px #00ff00,
+              0 0 25px #00ff00,
+              0 0 50px #00ff00,
+              0 0 100px #00ff00;
+}
+
 .box a span {
   position: absolute;
   display: block;
@@ -122,4 +133,20 @@ body {
     bottom: 100%;
   }
 }
+
+/* 加课减课按钮的绿色动画边框 */
+#addp span:nth-child(1), #delp span:nth-child(1) {
+  background: linear-gradient(90deg, transparent, #00ff00);
+}
+
+#addp span:nth-child(2), #delp span:nth-child(2) {
+  background: linear-gradient(180deg, transparent, #00ff00);
+}
+
+#addp span:nth-child(3), #delp span:nth-child(3) {
+  background: linear-gradient(270deg, transparent, #00ff00);
+}
+
+#addp span:nth-child(4), #delp span:nth-child(4) {
+  background: linear-gradient(360deg, transparent, #00ff00);
 }
